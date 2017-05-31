@@ -1,0 +1,54 @@
+# clean and prep results
+# Andrew Crowley
+# May, 2017
+
+# task 1 - anchor all equilibrium dissociation constants to molar-scale values
+
+  # all KD values end with a two-character unit abbreviation taking the form "_m"
+
+input$kd_unit <- substr(input$kd, nchar(input$kd)-1, nchar(input$kd))
+input$kd_unit <- tolower(input$kd_unit)
+
+  # all but the final two characters are the KD values
+
+input$kd_value <- substr(input$kd, 1, nchar(input$kd)-2)
+input$kd_value <- as.numeric(input$kd_value)
+
+  # reference for units:
+  #   mM - millimolar (1e-03)
+  #   uM - micromolar (1e-06)
+  #   nM - nanomolar (1e-09)
+  #   pM - picomolar (1e-12)
+
+  # handle the NA values introduced by blanks and negative controls
+  # that do not have a unit for KD
+
+input$kd_value[is.na(input$kd_value)] <- 0
+
+  # introduce a scaling factor based on the unit accompanying the KD value
+  # there must be a better way to do this?
+
+input$scale_factor <- 0   # initialize
+input$scale_factor[input$kd_unit == "mm"] <- 1e-03
+input$scale_factor[input$kd_unit == "um"] <- 1e-06
+input$scale_factor[input$kd_unit == "nm"] <- 1e-09
+input$scale_factor[input$kd_unit == "pm"] <- 1e-12
+
+  # scale KD values by factor that anchors all to molar (1e00) reference point
+
+input$affinity <- (input$kd_value * input$scale_factor)
+
+# task 2 - extract concentration of printed protein from spot name
+
+input$print_conc <- NA # initialize
+  # input$print_conc[input$spot_name != "blank_."] <- 0
+
+# task 3 - pass along the results of preparation and cleaning for filtering
+
+prep_output <- data.frame(spot_name = input$spot_name, rmax = input$rmax, res_stdev = input$res_stdev, affinity = input$affinity)
+write.csv(prep_output, file = "prep_output.csv")
+
+# unresolved issues:
+  # still not satisfied with how anchoring affinties to 1e-00 handled
+  # revisit with a better understanding of dplyr?
+  # extract spot concentration, but ultimtely use as a factor
