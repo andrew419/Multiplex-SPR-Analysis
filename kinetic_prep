@@ -10,9 +10,13 @@ library(readxl)
 # by habit, Scrubber results take the form of an Excel worksheet,
 #   one receptor per sheet
 
-# bypass readxl looping for the moment and manually read in CSVs
+sheets <- excel_sheets("file_name") # USER INPUT HERE
 
-# bypass list / function to insert analyte column, manually write in
+for(i in 1:length(sheets)) {
+  assign(as.character(sheets[i]), read_excel("file_name", i)) # USER INPUT HERE
+}
+
+# bypass list / function to insert analyte column for the moment, manually write in instead
 
 full <- rbind(df1, df2, ...) # USER INPUT HERE
 full <- rename(full, spot_name = X, Res_StDev = Res.sd)
@@ -21,7 +25,7 @@ full$Rmax <- as.numeric(full$Rmax)
 # at present, work does not utilize ka and kd values,
 #   only equilibrium dissociation constant (KD)
 
-full <- select(full, spot_name, receptor, Rmax, Res_StDev, KD)
+full <- select(full, spot_name, analyte, Rmax, Res_StDev, KD)
 
 # kinetic analysis in Scrubber outputs KD values using molarity units
 #   taking the form "_M"; unable to properly compare without anchoring
