@@ -1,0 +1,46 @@
+# Clean and Prep (Kinetic Results)
+# Andrew Crowley
+# May - June, 2017
+
+# packages
+
+library(tidyverse)
+library(readxl)
+
+# by habit, Scrubber results take the form of an Excel worksheet,
+#   one receptor per sheet
+
+# bypass readxl looping for the moment and manually read in CSVs
+
+# bypass list / function to insert analyte column, manually write in
+
+full <- rbind(df1, df2, ...) # USER INPUT HERE
+full <- rename(full, spot_name = X, Res_StDev = Res.sd)
+full$Rmax <- as.numeric(full$Rmax)
+
+# at present, work does not utilize ka and kd values,
+#   only equilibrium dissociation constant (KD)
+
+full <- select(full, spot_name, receptor, Rmax, Res_StDev, KD)
+
+# kinetic analysis in Scrubber outputs KD values using molarity units
+#   taking the form "_M"; unable to properly compare without anchoring
+#   to a uniform baseline of 10^0 (ie. 1 M)
+
+full$KD_value <- substr(full$KD, 1, nchar(full$KD) - 2)
+full$KD_value <- as.numeric(full$KD_value)
+
+full$KD_unit <- substr(full$KD, nchar(full$KD) - 1, nchar(full$KD))
+full$KD_unit <- tolower(full$KD_unit)
+# if blanks / (-) ctrls have rare molar scale values, will this break?
+
+units <- c("mm", "um", "nm", "pm")
+scaling <- c(1e-03, 1e-06, 1e-09, 1e-012)
+scale_to_molar <- data.frame(units, scaling)
+
+# bypass pipes for the moment and use temporary variables
+
+# by convention, the names of the spots on the chip include the concentration
+#   of the solution used to print them; different concentrations have been
+#   demonstrated to produce similar results so the spots should be split for
+#   grouping by protein ID
