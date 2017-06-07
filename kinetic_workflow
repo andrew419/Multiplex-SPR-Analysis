@@ -67,9 +67,9 @@ full$KD_unit <- substr(full$KD, nchar(full$KD) - 1, nchar(full$KD))
 full$KD_unit <- tolower(full$KD_unit)
 # if blanks / (-) ctrls have rare molar scale values, will this break?
 
-units <- c("mm", "um", "nm", "pm")
-scaling <- c(1e-03, 1e-06, 1e-09, 1e-012)
-scale_to_molar <- data.frame(units, scaling)
+# units <- c("mm", "um", "nm", "pm")
+# scaling <- c(1e-03, 1e-06, 1e-09, 1e-012)
+# scale_to_molar <- data.frame(units, scaling)
 
 # this is a temporary workaround that should be replaced with a process
 #   that uses something more like the scale_to_molar arrangement above:
