@@ -7,7 +7,7 @@
 library(tidyverse)
 library(readxl)
 
-# by habit, Scrubber results take the form of an Excel worksheet,
+# by habit, Scrubber results take the form of an Excel workbook,
 #   one receptor per sheet
 
 sheets <- excel_sheets("file_name") # USER INPUT HERE
@@ -16,16 +16,30 @@ for(i in 1:length(sheets)) {
   assign(as.character(sheets[i]), read_excel("file_name", i)) # USER INPUT HERE
 }
 
-# bypass list / function to insert analyte column for the moment, manually write in instead
+# bypass process to insert analyte column, manually write in
 
-full <- rbind(df1, df2, ...) # USER INPUT HERE
-full <- rename(full, spot_name = X, Res_StDev = Res.sd)
+full <- do.call(rbind, mget(sheets))
+full <- rename(full, spot_name = X__1, Res_StDev = Res.sd)
+full$spot_name <- tolower(full$spot_name)
 full$Rmax <- as.numeric(full$Rmax)
 
-# at present, work does not utilize ka and kd values,
-#   only equilibrium dissociation constant (KD)
+# historically, the protein concentrations used to print spots generate
+#   very similar results; by extracting the spot concentration, results
+#   can be grouped by higher-order feature
+#   (eg. subclass or Fc point mutation for antibodies)
 
-full <- select(full, spot_name, analyte, Rmax, Res_StDev, KD)
+name_split <- strsplit(R2A_R131$X__1, "_")
+
+for (i in 1:length(name_split)) {
+  full$conc[i] <- name_split[[i]][length(name_split[[i]])]
+}
+
+full$conc[str_detect(full$spot_name, "blank") == T] <- 0
+full$conc[str_detect(full$spot_name, "bsa") == T] <- 0
+
+for (i in 1:length(name_split)) {
+  full$group1[i] <- name_split[[i]][1]
+}
 
 # kinetic analysis in Scrubber outputs KD values using molarity units
 #   taking the form "_M"; unable to properly compare without anchoring
@@ -42,9 +56,7 @@ units <- c("mm", "um", "nm", "pm")
 scaling <- c(1e-03, 1e-06, 1e-09, 1e-012)
 scale_to_molar <- data.frame(units, scaling)
 
-# bypass pipes for the moment and use temporary variables
+# at present, work does not utilize ka and kd values,
+#   only equilibrium dissociation constant (KD)
 
-# by convention, the names of the spots on the chip include the concentration
-#   of the solution used to print them; different concentrations have been
-#   demonstrated to produce similar results so the spots should be split for
-#   grouping by protein ID
+full <- select(input_full, spot_name, analyte, Rmax, Res_StDev, KD)
