@@ -16,7 +16,7 @@ for(i in 1:length(sheets)) {
   assign(as.character(sheets[i]), read_excel("file_name", i)) # USER INPUT HERE
 }
 
-# bypass process to insert analyte column, manually write in
+# bypass process to insert analyte column for the moment, manually write in
 
 full <- do.call(rbind, mget(sheets))
 full <- rename(full, spot_name = X__1, Res_StDev = Res.sd)
@@ -28,7 +28,7 @@ full$Rmax <- as.numeric(full$Rmax)
 #   can be grouped by higher-order feature
 #   (eg. subclass or Fc point mutation for antibodies)
 
-name_split <- strsplit(R2A_R131$X__1, "_")
+name_split <- strsplit(dataframe, "_") # USER INPUT HERE
 
 for (i in 1:length(name_split)) {
   full$conc[i] <- name_split[[i]][length(name_split[[i]])]
@@ -37,9 +37,12 @@ for (i in 1:length(name_split)) {
 full$conc[str_detect(full$spot_name, "blank") == T] <- 0
 full$conc[str_detect(full$spot_name, "bsa") == T] <- 0
 
+full$group_1 <- NA
+
 for (i in 1:length(name_split)) {
-  full$group1[i] <- name_split[[i]][1]
+  full$group_1[i] <- name_split[[i]][1]
 }
+# revisit with a method for splitting 2nd and 3rd terms
 
 # kinetic analysis in Scrubber outputs KD values using molarity units
 #   taking the form "_M"; unable to properly compare without anchoring
@@ -56,7 +59,20 @@ units <- c("mm", "um", "nm", "pm")
 scaling <- c(1e-03, 1e-06, 1e-09, 1e-012)
 scale_to_molar <- data.frame(units, scaling)
 
+# this is a temporary workaround that should be replaced with a process
+#   that uses something more like the scale_to_molar arrangement above:
+
+full$affinity <- NA
+full$scale_factor <- 1
+
+full$scale_factor[full$KD_unit == "mm"] <- 1e-03
+full$scale_factor[full$KD_unit == "um"] <- 1e-06
+full$scale_factor[full$KD_unit == "nm"] <- 1e-09
+full$scale_factor[full$KD_unit == "pm"] <- 1e-012
+
+full$affinity <- full$scale_factor * full$KD_value
+
 # at present, work does not utilize ka and kd values,
 #   only equilibrium dissociation constant (KD)
 
-full <- select(input_full, spot_name, analyte, Rmax, Res_StDev, KD)
+full <- select(full, spot_name, group_1, conc, analyte, Rmax, Res_StDev, affinity)
