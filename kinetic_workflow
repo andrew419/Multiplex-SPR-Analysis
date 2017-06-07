@@ -38,7 +38,7 @@ full$Rmax <- as.numeric(full$Rmax)
 #   can be grouped by higher-order feature
 #   (eg. subclass or Fc point mutation for antibodies)
 
-name_split <- strsplit(dataframe$variable, "_") # USER INPUT HERE
+name_split <- strsplit(full$spot_name, "_")
 
 full$conc <- NA
 
@@ -97,7 +97,7 @@ full <- select(full, spot_name, group_1, conc, analyte, Rmax, Res_StDev, affinit
 #     residual stdev < 10-15
 
 full$sig_strength <- "acceptable"
-full$sig_strength[full$Rmax > 50] <- "normal"
+full$sig_strength[full$Rmax >= 50] <- "normal"
 full$sig_strength[full$Rmax < 30] <- "poor"
 full$sig_strength[is.na(full$Rmax)] <- "poor"
 # would a constant percentage (eg. 10%) of Rmax converted to serve as
