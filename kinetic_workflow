@@ -13,10 +13,10 @@ library(readxl)
 # by habit, Scrubber results take the form of an Excel workbook,
 #   one receptor per sheet
 
-sheets <- excel_sheets("file_name") # USER INPUT HERE
+sheets <- excel_sheets("kinetic_results.xlsx") # USER INPUT HERE
 
 for(i in 1:length(sheets)) {
-  assign(as.character(sheets[i]), read_excel("file_name", i)) # USER INPUT HERE
+  assign(as.character(sheets[i]), read_excel("kinetic_results.xlsx", i)) # USER INPUT HERE
 }
 
 # bypass process to insert analyte column for the moment, manually write in
@@ -41,20 +41,36 @@ full$Rmax <- as.numeric(full$Rmax)
 name_split <- strsplit(full$spot_name, "_")
 
 full$conc <- NA
+full$group_1 <- NA
+full$group_2 <- NA
+full$group_3 <- NA
 
 for (i in 1:length(name_split)) {
   full$conc[i] <- name_split[[i]][length(name_split[[i]])]
 }
 
-full$conc[str_detect(full$spot_name, "blank") == T] <- 0
-full$conc[str_detect(full$spot_name, "bsa") == T] <- 0
-
-full$group_1 <- NA
-
 for (i in 1:length(name_split)) {
   full$group_1[i] <- name_split[[i]][1]
 }
-# revisit with a method for splitting 2nd and 3rd terms
+
+for (i in 1:length(name_split)) {
+  full$group_2[i] <- name_split[[i]][2]
+}
+
+for (i in 1:length(name_split)) {
+  full$group_3[i] <- name_split[[i]][3]
+}
+
+# ends up duplicating the concentrations into the group variables,
+#   so these are removed
+
+full$group_2[full$group_2 == full$conc] <- NA
+full$group_3[full$group_3 == full$conc] <- NA
+
+full$conc[str_detect(full$spot_name, "blank") == T] <- 0
+full$conc[str_detect(full$spot_name, "bsa") == T] <- 0
+# the section above seems to work, but can probably be done more
+#   efficiently down the line
 
 # kinetic analysis in Scrubber outputs KD values using molarity units
 #   taking the form "_M"; unable to properly compare without anchoring
@@ -74,7 +90,7 @@ full$KD_unit <- tolower(full$KD_unit)
 # this is a temporary workaround that should be replaced with a process
 #   that uses something more like the scale_to_molar arrangement above:
 
-full$affinity <- NA
+full$KD <- NA
 full$scale_factor <- 1
 
 full$scale_factor[full$KD_unit == "mm"] <- 1e-03
@@ -82,12 +98,12 @@ full$scale_factor[full$KD_unit == "um"] <- 1e-06
 full$scale_factor[full$KD_unit == "nm"] <- 1e-09
 full$scale_factor[full$KD_unit == "pm"] <- 1e-012
 
-full$affinity <- full$scale_factor * full$KD_value
+full$KD <- full$scale_factor * full$KD_value
 
 # at present, work does not utilize ka and kd values,
 #   only equilibrium dissociation constant (KD)
 
-full <- select(full, spot_name, group_1, conc, analyte, Rmax, Res_StDev, affinity)
+full <- select(full, group_1, group_2, group_3, conc, analyte, Rmax, Res_StDev, KD)
 
 # FILTER
 
@@ -113,8 +129,10 @@ full$valid <- 0
 full$valid[full$sig_strength == "normal" & full$curve_fit == "normal"] <- 1
 full$valid[full$sig_strength == "acceptable" & full$curve_fit == "normal"] <- 1
 full$valid[full$sig_strength == "normal" & full$curve_fit == "acceptable"] <- 1
-full$valid[is.na(full$affinity)] <- 0
+full$valid[is.na(full$KD)] <- 0
 
-full <- select(full, spot_name, group_1, conc, analyte, affinity, valid)
+full <- select(full, group_1, group_2, group_3, conc, analyte, KD, valid)
+
+write_csv(full, "kinetic_results_processed", row.names = F)
 
 # VISUALIZATION
