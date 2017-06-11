@@ -133,6 +133,7 @@ full$valid[is.na(full$KD)] <- 0
 
 full <- select(full, group_1, group_2, group_3, conc, analyte, KD, valid)
 
+full <- arrange(full, analyte, group_1, group_2, group_3, conc)
 write_csv(full, "kinetic_results_processed", row.names = F)
 
 # VISUALIZATION
