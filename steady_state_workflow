@@ -124,6 +124,7 @@ local_SS <- rename(local_SS, Rmax = Rmax_local, KD = KD_local)
 
 global_SS$valid <- 0
 global_SS$valid[global_SS$Rmax >= 30] <- 1
+global_SS$valid[is.na(global_SS$KD)] <- 0
 global_SS <- select(global_SS, -Rmax)
 
 global_SS <- arrange(global_SS, analyte, group_1, group_2, group_3, conc)
@@ -131,6 +132,7 @@ write.csv(global_SS, file = "global_SS_processed.csv", row.names = F)
 
 local_SS$valid <- 0
 local_SS$valid[local_SS$Rmax >= 30] <- 1
+local_SS$valid[is.na(local_SS$KD)] <- 0
 local_SS <- select(local_SS, -Rmax)
 
 local_SS <- arrange(local_SS, analyte, group_1, group_2, group_3, conc)
