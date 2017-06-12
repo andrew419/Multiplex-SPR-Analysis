@@ -116,13 +116,10 @@ full$sig_strength <- "acceptable"
 full$sig_strength[full$Rmax >= 50] <- "normal"
 full$sig_strength[full$Rmax < 30] <- "poor"
 full$sig_strength[is.na(full$Rmax)] <- "poor"
-# would a constant percentage (eg. 10%) of Rmax converted to serve as
-#   residual stdev threshold be better?
-#   large Rmax and residual stdev seem to be correlated
 
 full$curve_fit <- "acceptable"
-full$curve_fit[full$Res_StDev < 10] <- "normal"
-full$curve_fit[full$Res_StDev > 15] <- "poor"
+full$curve_fit[full$Res_StDev < (full$Rmax * 0.1)] <- "normal"
+full$curve_fit[full$Res_StDev > (full$Rmax * 0.15)] <- "poor"
 full$curve_fit[is.na(full$Res_StDev)] <- "poor"
 
 full$valid <- 0
