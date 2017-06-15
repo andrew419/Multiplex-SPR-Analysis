@@ -1,0 +1,25 @@
+Immunoglobulin G Style Guide
+Andrew Crowley
+June, 2017
+
+IgG1
+  shape: square [15, 0]
+  color theme: blue
+  color series: [061339, 162656, 2F4073, 50608F, 7986AC]
+
+IgG2
+  shape: circle [16, 1]
+  theme: red
+  color series: [9B0400, C50500, FF0700, FF3E39, FF6763]
+
+IgG3
+  shape: upward triangle [17, 2]
+  theme: green
+  color series: [007C00, 009E00, 00CC00, 2ECF2E, 54D954]
+
+IgG4
+  shape: diamond [18, 3]
+  theme: purple
+  color series: [13073A, 261758, 403075, 615192, 887CAF]
+
+  
