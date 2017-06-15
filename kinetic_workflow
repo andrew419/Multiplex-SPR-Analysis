@@ -13,10 +13,10 @@ library(readxl)
 # by habit, Scrubber results take the form of an Excel workbook,
 #   one receptor per sheet
 
-sheets <- excel_sheets("kinetic_results.xlsx") # USER INPUT HERE
+sheets <- excel_sheets("<FILE_NAME>.xlsx")
 
 for(i in 1:length(sheets)) {
-  assign(as.character(sheets[i]), read_excel("kinetic_results.xlsx", i)) # USER INPUT HERE
+  assign(as.character(sheets[i]), read_excel("<FILE_NAME>.xlsx", i))
 }
 
 # bypass process to insert analyte column for the moment, manually write in
@@ -135,8 +135,8 @@ write_csv(full, "kinetic_results_processed.csv", row.names = F)
 
 # VISUALIZATION
 
-filter(full, full$valid == 1 & 2nd_criteria) %>% # USER INPUT HERE
+filter(full, full$valid == 1 & <CRITERIA>) %>%
   ggplot(aes(analyte, KD)) +
   geom_dotplot(binaxis = 'y', stackdir = 'center', dotsize = 0.5) +
-  labs(title = "TITLE", x = "X_AXIS", y = "Y_AXIS") + # USER INPUT HERE
+  labs(title = "<TITLE>", x = "<X_AXIS>", y = "<Y_AXIS>") +
   scale_y_log10() + theme_classic()
