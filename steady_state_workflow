@@ -15,10 +15,10 @@ library(zoo)
 # by habit, Scrubber results take the form of an Excel workbook,
 #   one receptor per sheet
 
-sheets <- excel_sheets("steady_state_results.xlsx") # USER INPUT HERE
+sheets <- excel_sheets("<FILE_NAME>.xlsx")
 
 for(i in 1:length(sheets)) {
-  assign(as.character(sheets[i]), read_excel("steady_state_results.xlsx", i)) # USER INPUT HERE
+  assign(as.character(sheets[i]), read_excel("<FILE_NAME>.xlsx", i))
 }
 
 # bypass process to insert analyte column for the moment, manually write in
