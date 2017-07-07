@@ -17,7 +17,7 @@ library(readxl)
 
 # by habit, Scrubber2 results are saved as an Excel workbook with one analyte per worksheet
 
-sheets <- excel_sheets("<FILE_NAME.xlsx")
+sheets <- excel_sheets("<FILE_NAME>.xlsx")
 
 ##### BEGIN TEMPORARY #####
 
@@ -149,3 +149,7 @@ local_SS <- select(local_SS, -Rmax) %>%
   arrange(analyte, major, minor_1, minor_2, conc)
 
 # VISUALIZATION
+
+filter(local_SS, user_valid == 1 & auto_valid == 1) %>%
+  ggplot(aes(analyte, KD)) + geom_dotplot(binwidth = 0.033, binaxis = 'y', stackdir = 'center') +
+  scale_y_log10()
